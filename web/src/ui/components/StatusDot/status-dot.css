@@ -1,0 +1,12 @@
+.status-dot {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--dim);
+  border-radius: 2px;
+}
+
+.status-dot.on {
+  background: var(--success);
+}

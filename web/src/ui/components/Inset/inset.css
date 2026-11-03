@@ -1,0 +1,9 @@
+.inset {
+  background: rgba(32, 32, 36, 0.7);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.inset-pad {
+  padding: 12px;
+}

@@ -1,0 +1,57 @@
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.segmented-option {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-badge);
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--t-fast),
+    background-color var(--t-fast),
+    border-color var(--t-fast);
+}
+
+.segmented-option svg {
+  flex-shrink: 0;
+}
+
+.segmented-option:hover {
+  color: var(--fg);
+}
+
+.segmented-option.active,
+.segmented-option.active:hover {
+  background: var(--panel-3);
+  border-color: var(--line-strong);
+  color: var(--fg);
+}
+
+.segmented-accent .segmented-option.active,
+.segmented-accent .segmented-option.active:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
