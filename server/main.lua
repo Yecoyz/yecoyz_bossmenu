@@ -2,12 +2,12 @@
 local RES = GetCurrentResourceName()
 Sessions = {} -- [source] = { job, computer }
 
--- The company functions (grades, employees, accounts, vehicles) came in yecoyz_core 1.3.0.
+-- The company functions (grades, employees, accounts, vehicles) came in yecoyz_core 1.3.0, vehicle keys in 1.4.0.
 -- Checked in a thread: an export call can yield while the server starts, and a yield here would
 -- let the other server files load before Action() and the helpers below exist.
 CreateThread(function()
-    if not pcall(function() return exports.yecoyz_core:GetSocietySystem() end) then
-        print('^1[yecoyz_bossmenu] yecoyz_core 1.3.0 or newer is needed. Update yecoyz_core.^7')
+    if not pcall(function() return exports.yecoyz_core:GetVehicleKeySystem() end) then
+        print('^1[yecoyz_bossmenu] yecoyz_core 1.4.0 or newer is needed. Update yecoyz_core.^7')
     end
 end)
 

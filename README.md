@@ -36,7 +36,7 @@ and the server refuses it.
 
 ## Install
 
-1. Needs [yecoyz_core](https://github.com/Yecoyz/yecoyz_core) 1.3.0 or newer and oxmysql. ESX, QBCore and Qbox
+1. Needs [yecoyz_core](https://github.com/Yecoyz/yecoyz_core) 1.4.0 or newer and oxmysql. ESX, QBCore and Qbox
    work through yecoyz_core, and so do the company accounts (esx_addonaccount, Renewed-Banking, qb-banking,
    qb-management or yecoyz_core's own table, see `Config.Society` in yecoyz_core).
 2. Put `yecoyz_bossmenu` in your resources and start it after yecoyz_core:

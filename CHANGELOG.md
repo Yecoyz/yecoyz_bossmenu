@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- Qbox: you now get the keys of a vehicle bought in the menu. The keys are given on the server through yecoyz_core (qbx_vehiclekeys, wasabi_carlock, Renewed-Vehiclekeys, qb-vehiclekeys), and ox_fuel gets a full tank for everyone.
+- Needs yecoyz_core 1.4.0.
+
 ## 1.0.1
 
 - Better performance near a computer: the monitor screen is worked out once instead of every frame and is not drawn when it is off screen, and the check for small props on the desk skips everything that is not close to the monitor.

@@ -233,6 +233,9 @@ RegisterNetEvent(RES .. ':spawnVehicle', function(data)
     SetVehicleOnGroundProperly(veh)
     SetEntityAsMissionEntity(veh, true, true)
     SetModelAsNoLongerNeeded(hash)
+    t = GetGameTimer() + 3000
+    while not NetworkGetEntityIsNetworked(veh) and GetGameTimer() < t do Wait(0) end
+    TriggerServerEvent(RES .. ':vehicleSpawned', VehToNet(veh)) -- the server gives the keys (yecoyz_core)
     BM.OnVehicleSpawned(veh, data.plate, data.model)
     BM.notify('notify_vehicle_spawned', 'success', data.plate)
 end)

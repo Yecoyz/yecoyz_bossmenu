@@ -1,5 +1,6 @@
 -- Work vehicles bought from the company account.
 local RES = GetCurrentResourceName()
+local spawning = {} -- [source] = { plate, model, expires } of a bought vehicle the client is spawning
 
 local function shopFor(job, grade, isBoss)
     local list = {}
@@ -65,7 +66,33 @@ Action('buyVehicle', 'vehicles', function(source, access, index, model)
     Log(access, 'vehicle', 'vehicle', nil, item.label, item.price, plate)
 
     if spawn then
+        spawning[source] = { plate = plate, model = item.model, expires = os.time() + 30 }
         TriggerClientEvent(RES .. ':spawnVehicle', source, { model = item.model, plate = plate, coords = spawn })
     end
     return { ok = true, plate = plate, spawned = spawn ~= nil, garage = garage }
 end)
+
+local function trim(text) return (tostring(text or ''):gsub('^%s+', ''):gsub('%s+$', '')) end
+
+-- The client spawned the vehicle it bought: give the keys from here, where the key scripts trust the call.
+RegisterNetEvent(RES .. ':vehicleSpawned', function(netId)
+    local source = source
+    local pending = spawning[source]
+    spawning[source] = nil
+    if not pending or os.time() > pending.expires or type(netId) ~= 'number' then return end
+
+    -- The entity and its plate reach the server a moment after the client made them.
+    local vehicle, t = 0, GetGameTimer() + 5000
+    while GetGameTimer() < t do
+        vehicle = NetworkGetEntityFromNetworkId(netId)
+        if vehicle ~= 0 and DoesEntityExist(vehicle) and trim(GetVehicleNumberPlateText(vehicle)) == trim(pending.plate) then break end
+        vehicle = 0
+        Wait(100)
+    end
+    if vehicle == 0 or GetEntityModel(vehicle) ~= joaat(pending.model) then return end
+
+    Core.GiveVehicleKeys(source, netId, pending.plate)
+    if GetResourceState('ox_fuel') == 'started' then Entity(vehicle).state:set('fuel', 100.0, true) end
+end)
+
+AddEventHandler('playerDropped', function() spawning[source] = nil end)
