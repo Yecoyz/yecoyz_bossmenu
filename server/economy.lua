@@ -41,7 +41,7 @@ local function logRows(job, filter, limit, since)
     end
     if since then where[#where + 1] = '`created_at` >= ?'; args[#args + 1] = since end
     args[#args + 1] = limit
-    return MySQL.query.await(('SELECT `id`, `category`, `action`, `actor_name`, `target_name`, `amount`, `details`, `created_at` FROM `yecoyz_bossmenu_logs` WHERE %s ORDER BY `id` DESC LIMIT ?'):format(table.concat(where, ' AND ')), args) or {}
+    return MySQL.query.await(('SELECT `id`, `category`, `action`, `actor_name`, `target_name`, `amount`, `details`, `created_at` FROM `yecoyz_bossmenu_logs` WHERE %s ORDER BY `created_at` DESC, `id` DESC LIMIT ?'):format(table.concat(where, ' AND ')), args) or {}
 end
 
 Action('economy', 'economy', function(source, access)

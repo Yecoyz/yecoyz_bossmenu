@@ -28,7 +28,7 @@ end
 Action('items', 'items', function(source, access)
     return {
         shop = shopFor(access.job, access.grade, access.isBoss),
-        recent = MySQL.query.await("SELECT `id`, `actor_name`, `target_name`, `amount`, `details`, `created_at` FROM `yecoyz_bossmenu_logs` WHERE `job` = ? AND `category` = 'item' ORDER BY `id` DESC LIMIT 50", { access.job }) or {},
+        recent = MySQL.query.await("SELECT `id`, `actor_name`, `target_name`, `amount`, `details`, `created_at` FROM `yecoyz_bossmenu_logs` WHERE `job` = ? AND `category` = 'item' ORDER BY `created_at` DESC, `id` DESC LIMIT 50", { access.job }) or {},
         balance = access.perms.economy and Core.GetSocietyMoney(access.job) or nil,
         images = imagePath(),
     }

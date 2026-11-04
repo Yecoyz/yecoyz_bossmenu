@@ -43,12 +43,17 @@ local function startOfToday()
     return os.time({ year = t.year, month = t.month, day = t.day, hour = 0 })
 end
 
--- [identifier] = { today, week, month, total, shifts, average, lastShift, onDuty }
-function DutyStatsFor(job, employees)
-    if not DutyAvailable() then return {} end
+local function idsOf(employees)
     local ids = {}
     for _, e in ipairs(employees) do ids[#ids + 1] = e.identifier end
-    local histories = rowsFor(ids)
+    return ids
+end
+
+-- [identifier] = { today, week, month, total, shifts, average, lastShift, onDuty }
+-- histories: from rowsFor, when the caller already loaded them.
+function DutyStatsFor(job, employees, histories)
+    if not DutyAvailable() then return {} end
+    histories = histories or rowsFor(idsOf(employees))
     local now, today = os.time(), startOfToday()
     local stats = {}
     for _, e in ipairs(employees) do
@@ -102,9 +107,8 @@ end
 
 Action('duty', 'duty', function(source, access)
     local employees = GetEmployees(access.job)
-    local stats = DutyStatsFor(access.job, employees)
-    local ids = {}
-    for _, e in ipairs(employees) do ids[#ids + 1] = e.identifier end
+    local histories = rowsFor(idsOf(employees))
+    local stats = DutyStatsFor(access.job, employees, histories)
     local list = {}
     for _, e in ipairs(employees) do
         list[#list + 1] = {
@@ -112,7 +116,7 @@ Action('duty', 'duty', function(source, access)
             onDuty = e.onDuty, stats = stats[e.identifier], manageable = CanManage(access, e.identifier, e.grade),
         }
     end
-    return { employees = list, days = hoursByDay(access.job, rowsFor(ids), 14) }
+    return { employees = list, days = hoursByDay(access.job, histories, 14) }
 end)
 
 local function employeeFor(access, identifier, needManage)

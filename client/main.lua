@@ -124,9 +124,22 @@ local function spawnExtras(id, obj, model)
     extras[id] = list
 end
 
+-- How far from the monitor a prop's origin can be while its middle is still inside Desk.Area: props further away are
+-- skipped with one distance check instead of reading their model size.
+local clearRadius
+do
+    local desk = Config.Computer.Desk
+    if desk and desk.Area then
+        local a, b = desk.Area.min, desk.Area.max
+        local far = vector3(math.max(math.abs(a.x), math.abs(b.x)), math.max(math.abs(a.y), math.abs(b.y)), math.max(math.abs(a.z), math.abs(b.z)))
+        clearRadius = #far + (desk.MaxSize or 0.9) * 2.0
+    end
+end
+
 -- Map props (not ones spawned by scripts) whose middle is inside Desk.Area around the monitor and that are no bigger
 -- than Desk.MaxSize get a model hide. Runs again while the player is near, as interior props stream in later.
-local function clearArea(id, obj)
+-- pool: GetGamePool('CObject'), shared when several computers are checked in the same tick.
+local function clearArea(id, obj, pool)
     local desk = Config.Computer.Desk
     if not desk or not desk.ClearArea then return end
     local area, maxSize = desk.Area, desk.MaxSize or 0.9
@@ -143,8 +156,8 @@ local function clearArea(id, obj)
             list[key] = { coords = center, model = model, radius = desk.HideRadius or 1.0 }
         end
     end
-    for _, e in ipairs(GetGamePool('CObject')) do
-        if e ~= obj and not IsEntityAMissionEntity(e) then
+    for _, e in ipairs(pool or GetGamePool('CObject')) do
+        if e ~= obj and #(GetEntityCoords(e) - center) <= clearRadius and not IsEntityAMissionEntity(e) then
             local model = GetEntityModel(e)
             local mn, mx = GetModelDimensions(model)
             local size = math.max(mx.x - mn.x, mx.y - mn.y, mx.z - mn.z)
@@ -177,10 +190,13 @@ local function removeExtras(id)
 end
 BM.deskHidden = hidden
 
+local screens = {} -- [id] = { polys, pos } of a spawned monitor (it is frozen, so worked out once)
+
 local function removeProp(id)
     local obj = BM.props[id]
     if obj and DoesEntityExist(obj) then DeleteEntity(obj) end
     BM.props[id] = nil
+    screens[id] = nil
     removeExtras(id)
     Core.RemoveInteraction('yecoyz_bm_' .. id)
 end
@@ -236,8 +252,10 @@ end)
 CreateThread(function()
     while true do
         local pos = GetEntityCoords(PlayerPedId())
+        local pool
         for id, c in pairs(BM.computers) do
-            local near = #(pos - vector3(c.coords.x, c.coords.y, c.coords.z)) < Config.Computer.SpawnDistance
+            local dist = #(pos - vector3(c.coords.x, c.coords.y, c.coords.z))
+            local near = dist < Config.Computer.SpawnDistance
             if near and not (BM.props[id] and DoesEntityExist(BM.props[id])) then
                 local obj = spawnProp(c)
                 if obj then
@@ -248,8 +266,9 @@ CreateThread(function()
                 end
             elseif not near and BM.props[id] then
                 removeProp(id)
-            elseif near and BM.props[id] and #(pos - vector3(c.coords.x, c.coords.y, c.coords.z)) < 30.0 then
-                clearArea(id, BM.props[id]) -- props that streamed in since
+            elseif near and BM.props[id] and dist < 30.0 then
+                pool = pool or GetGamePool('CObject')
+                clearArea(id, BM.props[id], pool) -- props that streamed in since
             end
         end
         Wait(1000)
@@ -309,10 +328,12 @@ RegisterNUICallback('screenReady', function(_, cb)
     cb({})
 end)
 
--- Sprite polys map the texture affinely, so a grid of small cells keeps it straight.
-local function drawScreen(sc)
+-- Sprite polys map the texture affinely, so a grid of small cells keeps it straight. The monitor is frozen, so the
+-- cells are worked out once: two triangles per cell, each { x, y, z (x3), u, v (x3) } in DrawSpritePoly order.
+local function screenPolys(sc)
     local lift = sc.normal * 0.003
     local tl, right, down = sc.tl + lift, sc.tr - sc.tl, sc.bl - sc.tl
+    local polys = {}
     for j = 0, GRID - 1 do
         local v0, v1 = j / GRID, (j + 1) / GRID
         for i = 0, GRID - 1 do
@@ -321,24 +342,56 @@ local function drawScreen(sc)
             local b = tl + right * u1 + down * v0
             local c = tl + right * u1 + down * v1
             local d = tl + right * u0 + down * v1
-            DrawSpritePoly(d.x, d.y, d.z, c.x, c.y, c.z, b.x, b.y, b.z, 255, 255, 255, 255, TXD, TXN, u0, v1, 1.0, u1, v1, 1.0, u1, v0, 1.0)
-            DrawSpritePoly(d.x, d.y, d.z, b.x, b.y, b.z, a.x, a.y, a.z, 255, 255, 255, 255, TXD, TXN, u0, v1, 1.0, u1, v0, 1.0, u0, v0, 1.0)
+            polys[#polys + 1] = { d.x, d.y, d.z, c.x, c.y, c.z, b.x, b.y, b.z, u0, v1, u1, v1, u1, v0 }
+            polys[#polys + 1] = { d.x, d.y, d.z, b.x, b.y, b.z, a.x, a.y, a.z, u0, v1, u1, v0, u0, v0 }
         end
     end
+    return polys
 end
+
+local function screenFor(id)
+    local s = screens[id]
+    if s then return s end
+    local obj, c = BM.props[id], BM.computers[id]
+    if not obj or not c or not DoesEntityExist(obj) then return nil end
+    s = { polys = screenPolys(BM.screenOf(obj, c.model)), pos = GetEntityCoords(obj) }
+    screens[id] = s
+    return s
+end
+
+local function drawScreen(polys)
+    for k = 1, #polys do
+        local p = polys[k]
+        DrawSpritePoly(p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], 255, 255, 255, 255, TXD, TXN,
+            p[10], p[11], 1.0, p[12], p[13], 1.0, p[14], p[15], 1.0)
+    end
+end
+
+-- The closest monitor in view distance, looked up a few times a second (not every frame).
+local nearest = nil
+CreateThread(function()
+    while true do
+        local pos = GetEntityCoords(PlayerPedId())
+        local best, bestDist = nil, Config.Computer.ViewDistance
+        for id in pairs(BM.props) do
+            local s = screenFor(id)
+            if s then
+                local d = #(pos - s.pos)
+                if d < bestDist then best, bestDist = id, d end
+            end
+        end
+        nearest = best
+        Wait(best and 250 or 500)
+    end
+end)
 
 CreateThread(function()
     local lastClock = 0
     while true do
-        local pos = GetEntityCoords(PlayerPedId())
-        local best, bestDist = nil, Config.Computer.ViewDistance
-        for id, obj in pairs(BM.props) do
-            if DoesEntityExist(obj) then
-                local d = #(pos - GetEntityCoords(obj))
-                if d < bestDist then best, bestDist = id, d end
-            end
-        end
-        if best then
+        local best = nearest
+        local obj = best and BM.props[best]
+        local s = obj and screens[best]
+        if s then
             ensureDui()
             if BM.screenId ~= best then
                 BM.screenId = best
@@ -348,14 +401,13 @@ CreateThread(function()
                 lastClock = GetGameTimer()
                 BM.sendScreen()
             end
-            local obj = BM.props[best]
-            if duiReady and obj and not (BM.using and BM.mode == 'screen' and BM.usingId == best and BM.hideScreen) then
-                drawScreen(BM.screenOf(obj, BM.computers[best].model))
+            if duiReady and IsEntityOnScreen(obj) and not (BM.using and BM.mode == 'screen' and BM.usingId == best and BM.hideScreen) then
+                drawScreen(s.polys)
             end
             Wait(0)
         else
             destroyDui()
-            Wait(500)
+            Wait(250)
         end
     end
 end)

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- Better performance near a computer: the monitor screen is worked out once instead of every frame and is not drawn when it is off screen, and the check for small props on the desk skips everything that is not close to the monitor.
+- The duty page loads shift history once instead of twice, and the activity log and item history read through the log index, so they stay fast as the log grows.
+
 ## 1.0.0
 
 First release.
