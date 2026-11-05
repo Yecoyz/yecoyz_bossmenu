@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState } from 'react'
 import { useTranslation } from './ui/nui/i18n'
-import { Toast, ToastStack } from './ui/components/Toast/Toast'
+import { fetchNui } from './ui/nui/fetchNui'
 import type { Boot, LogRow } from './api'
 
 // The boot data of the open session, shared by every page.
@@ -53,45 +53,20 @@ export function useLogText() {
   }
 }
 
-// Short messages on top of the menu.
-type ToastItem = { id: number; tone: 'success' | 'danger' | 'accent'; text: string; leaving?: boolean }
-const ToastContext = createContext<(text: string, tone?: ToastItem['tone']) => void>(() => {})
-export const useToast = () => useContext(ToastContext)
-
-export function ToastProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<ToastItem[]>([])
-  const push = useCallback((text: string, tone: ToastItem['tone'] = 'success') => {
-    const id = Date.now() + Math.random()
-    setItems((list) => [...list.slice(-3), { id, tone, text }])
-    setTimeout(() => setItems((list) => list.map((i) => (i.id === id ? { ...i, leaving: true } : i))), 2800)
-    setTimeout(() => setItems((list) => list.filter((i) => i.id !== id)), 3000)
-  }, [])
-  return (
-    <ToastContext.Provider value={push}>
-      {children}
-      <div className="toasts">
-        <ToastStack>
-          {items.map((i) => (
-            <Toast key={i.id} tone={i.tone} leaving={i.leaving}>
-              {i.text}
-            </Toast>
-          ))}
-        </ToastStack>
-      </div>
-    </ToastContext.Provider>
-  )
+// Short messages go to yecoyz_core's notifications (client/main.lua, NUI callback 'notify').
+export function notify(text: string, kind: 'info' | 'success' | 'error' | 'warning' = 'info') {
+  fetchNui('notify', { text, kind }).catch(() => {})
 }
 
-// Shows a server error as a red toast. Returns true when the result was fine.
+// Shows a server error as an error notification. Returns true when the result was fine.
 export function useResult() {
-  const toast = useToast()
   const { t } = useTranslation()
   return (result: { error?: string }, success?: string) => {
     if (result.error) {
-      toast(t(`err_${result.error}`), 'danger')
+      notify(t(`err_${result.error}`), 'error')
       return false
     }
-    if (success) toast(success, 'success')
+    if (success) notify(success, 'success')
     return true
   }
 }

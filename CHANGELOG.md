@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4
+
+- Messages from the menu (saved, errors) are shown as yecoyz_core notifications instead of the menu's own toasts, so they look like every other notification and follow `Config.Notify` in yecoyz_core.
+
 ## 1.0.3
 
 - Deposits and withdrawals have a cooldown per player (`Config.Economy.Cooldown`, 3 seconds by default, 0 turns it off).

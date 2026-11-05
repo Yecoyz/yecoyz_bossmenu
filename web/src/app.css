@@ -34,9 +34,6 @@
   inset: 0;
   background: var(--backdrop);
 }
-.toasts .toast-stack {
-  z-index: 50;
-}
 
 /* ---- The OS window ---- */
 .os {

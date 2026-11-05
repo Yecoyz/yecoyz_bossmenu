@@ -44,6 +44,14 @@ end
 
 RegisterNUICallback('getLocale', function(_, cb) cb(locale) end)
 
+-- Messages from the menu (saved, errors) shown as yecoyz_core notifications.
+local notifyKinds = { info = true, success = true, error = true, warning = true }
+RegisterNUICallback('notify', function(data, cb)
+    cb({})
+    if type(data) ~= 'table' or type(data.text) ~= 'string' or data.text == '' then return end
+    Core.Notify(data.text:sub(1, 300), notifyKinds[data.kind] and data.kind or 'info', nil, BM.L('title'))
+end)
+
 ---------------------------------------------------------------------------------------------------------------------
 -- Screen corners of a placed computer, in world space.
 ---------------------------------------------------------------------------------------------------------------------

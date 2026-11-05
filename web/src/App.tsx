@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNuiEvent } from './ui/nui/useNuiEvent'
 import { fetchNui } from './ui/nui/fetchNui'
 import { warpMatrix } from './warp'
-import { BootContext, ToastProvider } from './lib'
+import { BootContext } from './lib'
 import type { Boot } from './api'
 import Menu from './Menu'
 import Creator, { type CreatorData } from './Creator'
@@ -92,7 +92,7 @@ export default function App() {
   }
 
   return (
-    <ToastProvider>
+    <>
       {open && (
         <BootContext.Provider value={open.boot}>
           {open.mode === 'fullscreen' && <div className="backdrop" />}
@@ -102,6 +102,6 @@ export default function App() {
         </BootContext.Provider>
       )}
       {creator && <Creator data={creator} />}
-    </ToastProvider>
+    </>
   )
 }

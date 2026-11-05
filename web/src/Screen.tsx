@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchNui } from './ui/nui/fetchNui'
 import Menu, { type Page } from './Menu'
-import { BootContext, ToastProvider } from './lib'
+import { BootContext } from './lib'
 import { TranslationProvider } from './ui/nui/i18n'
 import type { Boot } from './api'
 import en from '../../locales/en.json'
@@ -48,13 +48,11 @@ export default function Screen() {
   if (menu) {
     return (
       <TranslationProvider fallback={en as Record<string, string>}>
-        <ToastProvider>
-          <BootContext.Provider value={menu}>
-            <div className="stage stage-screen mirror">
-              <Menu mirror page={page} onClose={() => {}} />
-            </div>
-          </BootContext.Provider>
-        </ToastProvider>
+        <BootContext.Provider value={menu}>
+          <div className="stage stage-screen mirror">
+            <Menu mirror page={page} onClose={() => {}} />
+          </div>
+        </BootContext.Provider>
       </TranslationProvider>
     )
   }
