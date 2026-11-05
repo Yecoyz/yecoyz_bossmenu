@@ -58,6 +58,7 @@ Config.Economy = {
     PlayerAccount = 'bank', -- the player's account money is deposited from and withdrawn to ('bank' or 'cash')
     MaxTransaction = 1000000, -- largest single deposit or withdrawal
     HistoryDays = 30, -- transactions shown on the economy page
+    Cooldown = 3, -- seconds a player waits between two deposits/withdrawals (0 = none)
 }
 
 Config.Bonuses = {

@@ -60,9 +60,15 @@ Action('economy', 'economy', function(source, access)
     }
 end)
 
+local lastTransaction = {} -- [source] = os.time() of the player's last deposit/withdrawal
+
 local function moneyAction(kind)
     return function(source, access, amount, note)
         if Busy(source) then return Err('busy') end
+        local cooldown = Config.Economy.Cooldown or 0
+        if cooldown > 0 and lastTransaction[source] and os.time() - lastTransaction[source] < cooldown then
+            return Err('money_cooldown')
+        end
         amount = math.floor(tonumber(amount) or 0)
         if amount <= 0 or amount > Config.Economy.MaxTransaction then return Err('invalid_amount') end
         if type(note) == 'string' then note = note:gsub('[%c<>]', ''):sub(1, 80) else note = nil end
@@ -81,6 +87,7 @@ local function moneyAction(kind)
                 return Err('failed')
             end
         end
+        lastTransaction[source] = os.time()
         Log(access, 'money', kind, nil, nil, amount, note ~= '' and note or nil)
         return { ok = true, balance = Core.GetSocietyMoney(access.job), playerBalance = Core.GetMoney(source, account) }
     end
@@ -88,6 +95,8 @@ end
 
 Action('deposit', 'deposit', moneyAction('deposit'))
 Action('withdraw', 'withdraw', moneyAction('withdraw'))
+
+AddEventHandler('playerDropped', function() lastTransaction[source] = nil end)
 
 Action('logs', 'logs', function(source, access, category)
     local filter = nil

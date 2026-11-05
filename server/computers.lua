@@ -27,9 +27,14 @@ function Computers.All()
     return out
 end
 
-local function sync(target)
+local function listForClients()
     for _, c in pairs(list) do c.jobLabel = Core.GetJobLabel(c.job) end
-    TriggerClientEvent(RES .. ':computers', target or -1, Computers.All())
+    return Computers.All()
+end
+
+-- Pushes changes to everyone; players that join ask once through the computers callback.
+local function sync()
+    TriggerClientEvent(RES .. ':computers', -1, listForClients())
 end
 
 local function load()
@@ -53,8 +58,8 @@ end
 
 CreateThread(load)
 
-RegisterNetEvent(RES .. ':requestComputers', function()
-    sync(source)
+Core.Callback.Register(RES .. ':computers', function()
+    return listForClients()
 end)
 
 ---------------------------------------------------------------------------------------------------------------------

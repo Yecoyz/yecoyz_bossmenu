@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.3
+
+- Deposits and withdrawals have a cooldown per player (`Config.Economy.Cooldown`, 3 seconds by default, 0 turns it off).
+- Players that join get the computer list through a callback instead of a request event.
+
 ## 1.0.2
 
 - Qbox: you now get the keys of a vehicle bought in the menu. The keys are given on the server through yecoyz_core (qbx_vehiclekeys, wasabi_carlock, Renewed-Vehiclekeys, qb-vehiclekeys), and ox_fuel gets a full tank for everyone.

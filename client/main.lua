@@ -221,7 +221,7 @@ local function addInteraction(c, obj)
     })
 end
 
-RegisterNetEvent(RES .. ':computers', function(list)
+local function applyComputers(list)
     local seen = {}
     for _, c in ipairs(list) do
         seen[c.id] = true
@@ -235,7 +235,9 @@ RegisterNetEvent(RES .. ':computers', function(list)
     for id in pairs(BM.computers) do
         if not seen[id] then removeProp(id); BM.computers[id] = nil end
     end
-end)
+end
+
+RegisterNetEvent(RES .. ':computers', applyComputers)
 
 RegisterNetEvent(RES .. ':inUse', function(id, name)
     BM.inUse[id] = name
@@ -243,7 +245,8 @@ RegisterNetEvent(RES .. ':inUse', function(id, name)
 end)
 
 CreateThread(function()
-    TriggerServerEvent(RES .. ':requestComputers')
+    local computers = Core.Callback.Await(RES .. ':computers')
+    if computers then applyComputers(computers) end
     local list = Core.Callback.Await(RES .. ':inUseList') or {}
     for id, name in pairs(list) do BM.inUse[tonumber(id)] = name end
 end)

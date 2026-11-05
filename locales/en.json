@@ -240,6 +240,7 @@
   "err_self": "You can't do that to yourself",
   "err_offline": "They have to be online",
   "err_cooldown": "Wait a bit before the next bonus",
+  "err_money_cooldown": "Wait a few seconds before the next transaction",
   "err_no_spawn": "This computer has no vehicle spawn",
   "err_spawn_blocked": "Something is parked on the vehicle spawn",
   "err_cant_carry": "You can't carry that much",

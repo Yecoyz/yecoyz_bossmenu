@@ -356,3 +356,5 @@ function Busy(source, ms)
     busy[source] = now + (ms or 750)
     return false
 end
+
+AddEventHandler('playerDropped', function() busy[source] = nil end)
