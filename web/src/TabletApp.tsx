@@ -7,14 +7,12 @@ import { EmptyState } from './ui/components/EmptyState/EmptyState'
 import { Button } from './ui/components/Button/Button'
 import { BootContext } from './lib'
 import type { Boot } from './api'
-import Menu from './Menu'
-import { STAGE_H, STAGE_W } from './App'
+import TabletMenu from './TabletMenu'
 
 // The yecoyz_tablet SDK (sdk/tablet.js), loaded from the tablet resource named in the address (#tablet=<resource>).
 interface TabletSdk {
   ready(fn: (info: { visible: boolean }) => void): void
   on(action: 'visibility', fn: (visible: boolean) => void): void
-  close(): void
 }
 
 function tabletResource() {
@@ -35,25 +33,13 @@ function loadSdk(): Promise<TabletSdk | null> {
   })
 }
 
-function useViewport() {
-  const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight })
-  useEffect(() => {
-    const onResize = () => setSize({ w: window.innerWidth, h: window.innerHeight })
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-  return size
-}
-
 type State = { kind: 'loading' } | { kind: 'error'; error: string } | { kind: 'open'; boot: Boot; key: number }
 
 // The menu as a tablet app: a session is opened on the server each time the app is shown and closed when it is hidden
 // or the tablet is put away (client/tablet.lua).
 export default function TabletApp() {
   const { t } = useTranslation()
-  const view = useViewport()
   const [state, setState] = useState<State>({ kind: 'loading' })
-  const sdk = useRef<TabletSdk | null>(null)
   const opening = useRef(false)
 
   const open = useCallback(async () => {
@@ -70,7 +56,6 @@ export default function TabletApp() {
     let alive = true
     loadSdk().then((tablet) => {
       if (!alive) return
-      sdk.current = tablet
       if (!tablet) {
         void open() // browser preview
         return
@@ -87,8 +72,6 @@ export default function TabletApp() {
       alive = false
     }
   }, [open])
-
-  const close = () => sdk.current?.close()
 
   if (state.kind !== 'open') {
     return (
@@ -110,17 +93,10 @@ export default function TabletApp() {
     )
   }
 
-  // The tablet's app area is a little smaller than the menu's page size: scale it to fit.
-  const scale = Math.min(view.w / STAGE_W, view.h / STAGE_H)
   return (
     <div className="tablet-app">
       <BootContext.Provider value={state.boot}>
-        <div
-          className="stage stage-tablet"
-          style={{ transform: `scale(${scale})`, transformOrigin: '0 0', left: (view.w - STAGE_W * scale) / 2, top: (view.h - STAGE_H * scale) / 2 }}
-        >
-          <Menu key={state.key} onClose={close} />
-        </div>
+        <TabletMenu key={state.key} />
       </BootContext.Provider>
     </div>
   )

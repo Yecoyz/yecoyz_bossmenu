@@ -24,8 +24,7 @@
   opacity: 0;
   pointer-events: none;
 }
-.stage.stage-screen .os,
-.stage.stage-tablet .os {
+.stage.stage-screen .os {
   border-radius: 0;
   border: none;
   box-shadow: none;
@@ -1267,17 +1266,138 @@ select.input {
   color: var(--success);
 }
 
-/* The yecoyz_tablet app (#tablet): fills the tablet's app area. */
+/* The yecoyz_tablet app (#tablet): 1280 x 766 with the tablet's home bar over the bottom 22px. Laid out like the
+   yecoyz_duty tablet app so the two look like one set. */
 .tablet-app {
   position: fixed;
   inset: 0;
-  background: var(--bg);
-}
-.stage-tablet .os-clock {
-  display: none; /* the tablet's status bar shows the time */
+  background: var(--panel);
 }
 .tablet-app-center {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.tablet-menu {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  width: 100%;
+  height: 100%;
+  padding-bottom: 22px;
+}
+.tablet-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--line);
+}
+.tablet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 3px 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.tablet-side .tablet-header {
+  justify-content: flex-start;
+}
+.tablet-header .title {
+  font-size: 1.05rem;
+}
+.tablet-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.tablet-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.tablet-profile-info .title {
+  font-size: 0.95rem;
+}
+.tablet-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.tablet-nav {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 0;
+}
+.tablet-nav > .label {
+  padding: 0 16px 8px;
+}
+/* Like the duty app's tabs, standing up: muted text, fg + sand icon when active, a 2px sand bar on the left. */
+.tablet-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 16px;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.tablet-nav-item:hover {
+  color: var(--fg);
+  background: var(--panel-2);
+}
+.tablet-nav-item.active {
+  color: var(--fg);
+  background: var(--panel-2);
+}
+.tablet-nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: var(--accent);
+}
+.tablet-nav-item.active svg {
+  color: var(--accent);
+}
+.tablet-app ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.tablet-app ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tablet-app ::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 3px;
+}
+.tablet-app ::-webkit-scrollbar-button {
+  display: none;
+}
+.tablet-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
 }

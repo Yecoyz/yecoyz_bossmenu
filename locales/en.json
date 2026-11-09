@@ -314,6 +314,7 @@
   "tablet_description": "Staff, ranks, salaries and the company account",
   "tablet_loading": "Logging in...",
   "tablet_retry": "Try again",
+  "tablet_pages": "Pages",
   "tablet_error": "Could not open the boss menu",
   "tablet_error_no_access": "You have no access to the boss menu",
   "tablet_error_no_tablet": "Take the tablet out to use the boss menu",

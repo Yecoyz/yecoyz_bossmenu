@@ -15,7 +15,7 @@ import Logs from './pages/Logs'
 
 export type Page = 'dashboard' | 'employees' | 'grades' | 'economy' | 'vehicles' | 'items' | 'duty' | 'logs'
 
-const PAGES: { id: Page; icon: ReactNode; perms: string[] }[] = [
+export const PAGES: { id: Page; icon: ReactNode; perms: string[] }[] = [
   { id: 'dashboard', icon: <LayoutDashboard size={17} />, perms: ['dashboard'] },
   { id: 'employees', icon: <Users size={17} />, perms: ['employees'] },
   { id: 'grades', icon: <Briefcase size={17} />, perms: ['grades', 'salaries'] },
