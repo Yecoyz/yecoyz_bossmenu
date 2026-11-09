@@ -7,10 +7,11 @@ export const isBrowser =
   window.location.protocol !== 'nui:'
 
 // The resource name, so the same code works in every script. Falls back to `fallback` in the browser.
-// DUI pages have no GetParentResourceName, so it is read from their address (https://cfx-nui-<resource>/...).
+// Read from the page's own address (https://cfx-nui-<resource>/...) first: DUI pages have no GetParentResourceName,
+// and a page shown inside another resource's DUI (a yecoyz_tablet app) gets that resource's name from it.
 export function resourceName(fallback = 'yecoyz_resource'): string {
-  const fn = (window as { GetParentResourceName?: () => string }).GetParentResourceName
-  if (typeof fn === 'function') return fn()
   const host = window.location.hostname
-  return host.startsWith('cfx-nui-') ? host.slice('cfx-nui-'.length) : fallback
+  if (host.startsWith('cfx-nui-')) return host.slice('cfx-nui-'.length)
+  const fn = (window as { GetParentResourceName?: () => string }).GetParentResourceName
+  return typeof fn === 'function' ? fn() : fallback
 }

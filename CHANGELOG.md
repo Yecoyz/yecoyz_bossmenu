@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- An app for yecoyz_tablet (`Config.Tablet`): players with menu access get the boss menu on their tablet. The same access rules apply, and it only works while the tablet is out. Vehicles can't be spawned from it.
+
 ## 1.0.4
 
 - Messages from the menu (saved, errors) are shown as yecoyz_core notifications instead of the menu's own toasts, so they look like every other notification and follow `Config.Notify` in yecoyz_core.

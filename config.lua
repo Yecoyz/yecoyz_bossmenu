@@ -186,5 +186,17 @@ Config.Computers = {
 -- Open the menu with a command instead of a computer (nil = off). Same access rules.
 Config.Command = nil -- e.g. 'bossmenu'
 
+-- An app on yecoyz_tablet (when that resource runs). Players with menu access get it on their tablet; the same access
+-- rules apply, and the menu only opens while the tablet is out. Vehicles can't be spawned from it (no computer spawn).
+Config.Tablet = {
+    Enabled = true,
+    Resource = 'yecoyz_tablet',
+    AppId = 'bossmenu',
+    Label = 'Company',
+    Icon = 'briefcase',          -- a yecoyz_tablet icon name, or an image in this resource
+    Color = '#29292f',
+    InstalledByDefault = true,   -- false: players install it from the tablet's Apps app
+}
+
 -- Development bridge for testing (dev/request.json). Never turn on on a live server.
 Config.DevBridge = false

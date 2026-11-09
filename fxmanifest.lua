@@ -32,6 +32,7 @@ client_scripts {
     'client/main.lua',
     'client/computer.lua',
     'client/creator.lua',
+    'client/tablet.lua',
     'client/dev.lua',
 }
 

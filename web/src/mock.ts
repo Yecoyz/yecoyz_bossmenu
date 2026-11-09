@@ -102,20 +102,17 @@ export function installMocks(isScreen: boolean) {
     debugNui('creator', { computers: [{ id: 1, job: 'police', jobLabel: 'LSPD', label: 'Chief office', model: 'prop_monitor_w_large', coords: { x: 0, y: 0, z: 0, w: 0 }, spawn: { x: 0, y: 0, z: 0, w: 0 } }], jobs: [{ name: 'ambulance', label: 'EMS' }, { name: 'police', label: 'LSPD' }, { name: 'mechanic', label: 'Mechanic' }], models: [{ model: 'prop_monitor_w_large', label: 'Wide monitor' }], vehicleSpawn: true, shops: { vehicle: true, item: true }, currency: '$' }, 100)
     return
   }
-  debugNui(
-    'open',
-    {
-      mode: 'fullscreen',
-      boot: {
-        me: { name: 'Peter Svensson', identifier: 'a', grade: 3, gradeLabel: 'Chief', isBoss: true },
-        job: { name: 'police', label: 'LSPD' },
-        perms: allPerms,
-        allPerms,
-        currency: '$',
-        duty: true,
-        settings: { maxBonus: 50000, maxSalary: 25000, maxIndividual: 10000, individual: true, maxTransaction: 1000000, maxGrades: 20, hireById: true, vehicleMode: 'spawn', dutyEdit: true, dutyRemove: true, dutyAdd: true, dutyForceOff: true, maxShiftHours: 24, gradeSalaries: true },
-      },
-    },
-    100,
-  )
+  const boot = {
+    me: { name: 'Peter Svensson', identifier: 'a', grade: 3, gradeLabel: 'Chief', isBoss: true },
+    job: { name: 'police', label: 'LSPD' },
+    perms: allPerms,
+    allPerms,
+    currency: '$',
+    duty: true,
+    settings: { maxBonus: 50000, maxSalary: 25000, maxIndividual: 10000, individual: true, maxTransaction: 1000000, maxGrades: 20, hireById: true, vehicleMode: 'spawn', dutyEdit: true, dutyRemove: true, dutyAdd: true, dutyForceOff: true, maxShiftHours: 24, gradeSalaries: true },
+  }
+  // The tablet app (#tablet) asks for its session itself.
+  mockNui('tabletOpen', () => ({ boot }))
+  if (window.location.hash.startsWith('#tablet')) return
+  debugNui('open', { mode: 'fullscreen', boot }, 100)
 }

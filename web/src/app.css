@@ -24,7 +24,8 @@
   opacity: 0;
   pointer-events: none;
 }
-.stage.stage-screen .os {
+.stage.stage-screen .os,
+.stage.stage-tablet .os {
   border-radius: 0;
   border: none;
   box-shadow: none;
@@ -1264,4 +1265,19 @@ select.input {
 }
 .screen-state.on svg {
   color: var(--success);
+}
+
+/* The yecoyz_tablet app (#tablet): fills the tablet's app area. */
+.tablet-app {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+}
+.stage-tablet .os-clock {
+  display: none; /* the tablet's status bar shows the time */
+}
+.tablet-app-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

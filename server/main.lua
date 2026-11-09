@@ -66,6 +66,9 @@ function SetPersonalAccess(job, identifier, perms)
         })
     end
     GetPersonalAccess(job)[identifier] = #list > 0 and perms or nil
+    -- Their tablet app comes or goes with the access (client/tablet.lua).
+    local target = Core.GetSourceFromIdentifier(identifier)
+    if target then TriggerClientEvent(RES .. ':accessChanged', target) end
 end
 
 -- A permission is usable when its feature is on (and duty runs for 'duty'). With a job, also when that job didn't
@@ -185,11 +188,23 @@ end
 local function err(code) return { error = code } end
 Err = err
 
+-- The tablet app (Config.Tablet): only while the player has the tablet out (set by yecoyz_tablet on the server).
+function TabletOut(source)
+    local t = Config.Tablet
+    if not t or not t.Enabled or GetResourceState(t.Resource) ~= 'started' then return false end
+    local ok, out = pcall(function() return exports[t.Resource]:IsOpen(source) end)
+    return ok and out == true
+end
+
 -- perm: a permission name, a list (any of them) or nil (only an open session needed).
 function Action(name, perm, handler)
     Core.Callback.Register(RES .. ':' .. name, function(source, ...)
         local session = Sessions[source]
         if not session then return err('no_session') end
+        if session.tablet and not TabletOut(source) then
+            Sessions[source] = nil
+            return err('no_tablet')
+        end
         local access = GetAccess(source)
         if not access or access.job ~= session.job then
             Sessions[source] = nil
@@ -213,12 +228,15 @@ end
 -- Players another script opened the menu for with OpenBossMenu (allowed once, without a computer).
 local openAnywhere = {}
 
--- Opening: at a computer (checked against its position), by command or through OpenBossMenu.
-local function openFor(source, computerId)
+-- Opening: at a computer (checked against its position), on the tablet, by command or through OpenBossMenu.
+local function openFor(source, computerId, via)
     local access = GetAccess(source)
     if not access then return err('no_access') end
 
-    if computerId then
+    if via == 'tablet' then
+        computerId = nil
+        if not TabletOut(source) then return err('no_tablet') end
+    elseif computerId then
         local computer = Computers.Get(computerId)
         if not computer then return err('no_computer') end
         if computer.job ~= access.job then return err('wrong_job') end
@@ -227,9 +245,9 @@ local function openFor(source, computerId)
     elseif not Config.Command and not openAnywhere[source] then
         return err('no_computer')
     end
-    openAnywhere[source] = nil
+    if via ~= 'tablet' then openAnywhere[source] = nil end
 
-    Sessions[source] = { job = access.job, computer = computerId }
+    Sessions[source] = { job = access.job, computer = computerId, tablet = via == 'tablet' or nil }
     if computerId then TriggerClientEvent(RES .. ':inUse', -1, computerId, access.name) end
     local perms = {}
     for name in pairs(access.perms) do perms[#perms + 1] = name end
@@ -263,6 +281,10 @@ Core.Callback.Register(RES .. ':open', function(source, computerId)
     return openFor(source, tonumber(computerId))
 end)
 
+Core.Callback.Register(RES .. ':openTablet', function(source)
+    return openFor(source, nil, 'tablet')
+end)
+
 local function endSession(source)
     openAnywhere[source] = nil
     local session = Sessions[source]
@@ -270,8 +292,13 @@ local function endSession(source)
     if session and session.computer then TriggerClientEvent(RES .. ':inUse', -1, session.computer, nil) end
 end
 
-RegisterNetEvent(RES .. ':close', function()
-    endSession(source)
+-- kind 'tablet' closes only a tablet session, nothing closes only a computer/command one, so the two can't end each
+-- other's session.
+RegisterNetEvent(RES .. ':close', function(kind)
+    local src = source
+    local session = Sessions[src]
+    if session and (session.tablet == true) ~= (kind == 'tablet') then return end
+    endSession(src)
 end)
 
 AddEventHandler('playerDropped', function()
