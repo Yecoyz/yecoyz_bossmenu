@@ -71,6 +71,11 @@ function SetPersonalAccess(job, identifier, perms)
     if target then TriggerClientEvent(RES .. ':accessChanged', target) end
 end
 
+-- Rank access or pages changed for a whole job (creator): everyone online in it gets their tablet app checked again.
+function AccessChangedForJob(job)
+    for _, src in ipairs(Core.GetPlayersByJob(job)) do TriggerClientEvent(RES .. ':accessChanged', src) end
+end
+
 -- A permission is usable when its feature is on (and duty runs for 'duty'). With a job, also when that job didn't
 -- turn the page off in the creator (server/jobs.lua).
 local function permAvailable(name, job)

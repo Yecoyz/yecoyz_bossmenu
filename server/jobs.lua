@@ -202,6 +202,7 @@ CreatorCallback('jobSave', function(source, job, data)
     s.by = Core.GetIdentifier(source)
     settings[job] = s
     store(job)
+    AccessChangedForJob(job)
     return jobPayload(job)
 end)
 
@@ -213,6 +214,7 @@ CreatorCallback('jobReset', function(source, job, what)
         if what == 'pages' then s.pages = {} elseif what == 'ranks' then s.ranks = nil end
         if not next(s.pages or {}) and not s.ranks then settings[job] = nil end
         store(job)
+        AccessChangedForJob(job)
     end
     return jobPayload(job)
 end)
