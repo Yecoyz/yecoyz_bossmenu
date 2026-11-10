@@ -3,6 +3,7 @@
 ## Unreleased
 
 - An app for yecoyz_tablet (`Config.Tablet`): players with menu access get the boss menu on their tablet. The same access rules apply, and it only works while the tablet is out. Vehicles can't be spawned from it.
+- Rank numbers have no gaps anymore. Deleting a rank moves the ranks above it down, and creating a rank first closes any existing gap (0, 1, 2, 3, 7 becomes 0..4), then adds the new rank just below the boss rank, which becomes the highest. Employees and rank permissions move along. Needs yecoyz_core 1.5.1.
 
 ## 1.0.4
 

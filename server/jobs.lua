@@ -77,6 +77,19 @@ function JobSettings.SwapGrades(job, a, b)
     store(job)
 end
 
+-- Ranks renumbered to close gaps (map = { [old] = new }) take their permissions along.
+function JobSettings.RemapGrades(job, map)
+    local ranks = JobSettings.Ranks(job)
+    if not ranks or not next(map) then return end
+    local moved = {}
+    for old, new in pairs(map) do
+        moved[new] = ranks[old]
+        ranks[old] = nil
+    end
+    for new, list in pairs(moved) do ranks[new] = list end
+    store(job)
+end
+
 function JobSettings.RemoveGrade(job, grade)
     local ranks = JobSettings.Ranks(job)
     if not ranks or not ranks[grade] then return end

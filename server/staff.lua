@@ -206,6 +206,14 @@ local function cleanText(text, max)
     return text
 end
 
+-- Renumbers the ranks of a job to 0, 1, 2... without gaps; the rank permissions go along. Returns true on success.
+function CompactGrades(job)
+    local ok, map = Core.CompactJobGrades(job)
+    if not ok then return false end
+    JobSettings.RemapGrades(job, map)
+    return true
+end
+
 Action('grades', { 'grades', 'salaries' }, function(source, access)
     local data = JobData(access.job)
     local counts = {}
@@ -236,8 +244,11 @@ Action('saveGrade', { 'grades', 'salaries' }, function(source, access, data)
 
     if not current then
         if #job.grades >= Config.Grades.MaxGrades then return Err('max_grades') end
-        grade = 0
-        for _, g in ipairs(job.grades) do if g.grade >= grade then grade = g.grade + 1 end end
+        -- Close any gap first, so the grades are 0..n and the new rank is number n + 1 on top.
+        if not CompactGrades(access.job) then return Err('failed') end
+        job = JobData(access.job)
+        if not job then return Err('failed') end
+        grade = #job.grades
         if not FeatureOn('GradeSalaries') then salary = 0 end
     elseif not access.isBoss and grade >= access.grade then
         return Err('hierarchy')
@@ -284,6 +295,7 @@ Action('deleteGrade', 'grades', function(source, access, grade)
     end
     if not Core.DeleteJobGrade(access.job, grade) then return Err('failed') end
     JobSettings.RemoveGrade(access.job, grade)
+    CompactGrades(access.job) -- the ranks above move down, so there is no gap
     Log(access, 'grade', 'grade_delete', nil, current.label)
     return { ok = true }
 end)
