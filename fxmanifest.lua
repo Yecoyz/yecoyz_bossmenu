@@ -4,7 +4,7 @@ lua54 'yes'
 
 author 'Yecoyz'
 description 'Boss menu on an in-world computer: staff, ranks, salaries, bonuses, access, vehicles, economy and duty stats'
-version '1.0.5'
+version '1.0.6'
 
 shared_scripts {
     '@yecoyz_core/import.lua',
@@ -32,6 +32,7 @@ client_scripts {
     'client/main.lua',
     'client/computer.lua',
     'client/creator.lua',
+    'client/tablet.lua',
     'client/dev.lua',
 }
 

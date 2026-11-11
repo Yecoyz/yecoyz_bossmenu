@@ -310,5 +310,15 @@
   "creator_pages_reset_text": "Turn every page on again for this job?",
   "creator_ranks_hint": "What each rank gets on its own, without being given access one by one on the Access page.",
   "creator_ranks_reset_text": "Remove the changes made in game and use Config.Access.GradeDefaults again?",
-  "creator_boss_all": "Boss rank: has everything"
+  "creator_boss_all": "Boss rank: has everything",
+  "tablet_description": "Staff, ranks, salaries and the company account",
+  "tablet_loading": "Logging in...",
+  "tablet_retry": "Try again",
+  "tablet_pages": "Pages",
+  "tablet_error": "Could not open the boss menu",
+  "tablet_error_no_access": "You have no access to the boss menu",
+  "tablet_error_no_tablet": "Take the tablet out to use the boss menu",
+  "tablet_error_busy": "Close the computer first",
+  "tablet_error_timeout": "No answer from the server",
+  "err_no_tablet": "Take the tablet out to use the boss menu"
 }

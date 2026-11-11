@@ -209,10 +209,10 @@ RegisterNUICallback('page', function(data, cb)
     cb({})
 end)
 
--- From the menu and from the monitor's copy of it (DUI), which loads while the camera moves in.
+-- From the menu, the monitor's copy of it (DUI), which loads while the camera moves in, and the tablet app.
 RegisterNUICallback('call', function(data, cb)
     local name = data and data.name
-    if not (BM.using or BM.opening) or not actions[name] then return cb({ error = 'invalid' }) end
+    if not (BM.using or BM.opening or BM.tabletSession) or not actions[name] then return cb({ error = 'invalid' }) end
     if name == 'buyVehicle' and Config.Vehicles.Mode == 'spawn' and spawnBlocked() then return cb({ error = 'spawn_blocked' }) end
     local args = type(data.args) == 'table' and data.args or {}
     CreateThread(function()

@@ -85,6 +85,13 @@ The framework keeps paying the rank salary. The boss menu pays the difference up
 `Config.IndividualSalary.Interval` minutes, from the company account. Set the interval to the framework's paycheck
 interval. A personal salary can't be lower than the rank salary.
 
+## Tablet app
+
+With [yecoyz_tablet](https://yecoyz.com) running, players who can use the boss menu get a **Company** app on their
+tablet (`Config.Tablet`). It is the same menu with the same access rules, and it only works while the tablet is out.
+Vehicles bought from the tablet can't be spawned (there is no computer spawn point), so use the garage mode or a
+computer for those.
+
 ## For other scripts
 
 ```lua
