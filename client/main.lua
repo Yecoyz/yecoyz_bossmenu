@@ -38,18 +38,31 @@ function BM.L(key, ...)
     if select('#', ...) > 0 then return text:format(...) end
     return text
 end
+-- Shows a message: on the tablet's own notifications while the menu is used on the tablet, otherwise as a
+-- yecoyz_core notification.
+function BM.showNotice(text, kind)
+    local tablet = Config.Tablet
+    if BM.tabletSession and tablet and tablet.Enabled and GetResourceState(tablet.Resource) == 'started' then
+        local ok = pcall(function()
+            exports[tablet.Resource]:Notify({ app = tablet.AppId, title = BM.L('title'), text = text })
+        end)
+        if ok then return end
+    end
+    Core.Notify(text, kind or 'info', nil, BM.L('title'))
+end
+
 function BM.notify(key, kind, ...)
-    Core.Notify(BM.L(key, ...), kind or 'info', nil, BM.L('title'))
+    BM.showNotice(BM.L(key, ...), kind)
 end
 
 RegisterNUICallback('getLocale', function(_, cb) cb(locale) end)
 
--- Messages from the menu (saved, errors) shown as yecoyz_core notifications.
+-- Messages from the menu (saved, errors).
 local notifyKinds = { info = true, success = true, error = true, warning = true }
 RegisterNUICallback('notify', function(data, cb)
     cb({})
     if type(data) ~= 'table' or type(data.text) ~= 'string' or data.text == '' then return end
-    Core.Notify(data.text:sub(1, 300), notifyKinds[data.kind] and data.kind or 'info', nil, BM.L('title'))
+    BM.showNotice(data.text:sub(1, 300), notifyKinds[data.kind] and data.kind or 'info')
 end)
 
 ---------------------------------------------------------------------------------------------------------------------

@@ -19,8 +19,18 @@ function L(key, ...)
     return text
 end
 
+-- On the tablet's own notifications while the player uses the menu on the tablet, otherwise yecoyz_core's.
 function Notify(source, key, kind, ...)
-    Core.Notify(source, L(key, ...), kind or 'info', nil, L('title'))
+    local text = L(key, ...)
+    local session = Sessions and Sessions[source]
+    local t = Config.Tablet
+    if session and session.tablet and t and t.Enabled and GetResourceState(t.Resource) == 'started' then
+        local ok = pcall(function()
+            exports[t.Resource]:Notify(source, { app = t.AppId, title = L('title'), text = text })
+        end)
+        if ok then return end
+    end
+    Core.Notify(source, text, kind or 'info', nil, L('title'))
 end
 
 function DutyAvailable()

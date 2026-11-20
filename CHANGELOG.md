@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.7
+
+- Messages from the boss menu app on yecoyz_tablet (saved, errors, hired, fired, ...) are shown as notifications on the tablet itself instead of yecoyz_core notifications. At a computer or with the command nothing changes.
+
 ## 1.0.6
 
 - An app for yecoyz_tablet (`Config.Tablet`): players with menu access get the boss menu as a **Company** app on their tablet, laid out like the other yecoyz tablet apps. The same access rules apply, the app comes and goes when a player's job, rank or access changes, and it only works while the tablet is out. Vehicles can't be spawned from it (use the garage mode or a computer).
